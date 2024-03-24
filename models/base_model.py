@@ -1,51 +1,65 @@
+#!/usr/bin/python3
+"""
+Module for the BaseModel class.
+"""
 import uuid
 from datetime import datetime
-from models import storage
+import models
 
 
 class BaseModel:
-
     def __init__(self, *args, **kwargs):
-        foo = "%Y-%m-%dT%H:%M:%S.%f"
+        TimeFormat = "%Y-%m-%dT%H:%M:%S.%f"
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
 
         if kwargs:
-            for key, value in kwargs.items():
-                if key != '__class__':
-                    if key == "created_at" or key == "updated_at":
-                        setattr(self, key, datetime.strptime(value, foo))
-                    else:
-                        setattr(self, key, value)
-        else:
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = self.created_at
-            storage.new(self)
+            for k, val in kwargs.items():
+                if k == "__class__":
+                    continue
+                elif k == "created_at" or k == "updated_at":
+                    setattr(self, k, datetime.strptime(val, TimeFormat))
+                else:
+                    setattr(self, k, val)
 
-    def __str__(self):
-        return "[{}] ({}) {}".format(self.__class__.__name__,
-                                     self.id, self.__dict__)
+        models.storage.new(self)
 
     def save(self):
-        self.updated_at = datetime.now()
+        """
+
+        """
+        self.updated_at = datetime.utcnow()
+        models.storage.save()
 
     def to_dict(self):
-        result = self.__dict__.copy()
-        result["__class__ "] = self.__class__.__name__
-        result["created_at"] = self.created_at.isoformat()
-        result["updated_at"] = self.updated_at.isoformat()
-        return result
+        """
+
+        """
+        inst_dict = self.__dict__.copy()
+        inst_dict["__class__"] = self.__class__.__name__
+        inst_dict["created_at"] = self.created_at.isoformat()
+        inst_dict["updated_at"] = self.updated_at.isoformat()
+
+        return inst_dict
+
+    def __str__(self):
+        """
+
+        """
+        ClassName = self.__class__.__name__
+        return "[{}] ({}) {}".format(ClassName, self.id, self.__dict__)
 
 
 if __name__ == "__main__":
-
-    my_model = BaseModel()
-    my_model.name = "My_First_Model"
-    my_model.my_number = 89
-    print(my_model.id)
-    print(my_model)
-    print(type(my_model.created_at))
+    MyModel = BaseModel()
+    MyModel.name = "My_First_Model"
+    MyModel.my_number = 89
+    print(MyModel.id)
+    print(MyModel)
+    print(type(MyModel.created_at))
     print("--")
-    my_model_json = my_model.to_dict()
+    my_model_json = MyModel.to_dict()
     print(my_model_json)
     print("JSON of my_model:")
     for key in my_model_json.keys():
@@ -58,5 +72,4 @@ if __name__ == "__main__":
     print(type(my_new_model.created_at))
 
     print("--")
-
-    print(my_model is my_new_model)
+    print(MyModel is my_new_model)
