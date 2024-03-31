@@ -1,0 +1,9 @@
+header {
+    background-color: white;
+    height: 70px;
+    border-bottom: 1px solid #CCCCCC;
+    background-image: url("../images/img.png");
+    background-repeat: no-repeat;
+    background-position: 20px center;
+}
+
